@@ -8,10 +8,9 @@ things a bit more pleasant.
 
 By putting the following in _bob`_`head.rb_:
 <pre>
-class Typhon
-    grow(:name => "bob", :files => "/var/log/mcollective.log") do |file, pos, line|
-        puts "bob ate #{line}"
-    end
+Typhon.grow(:name => "bob", :files => "/var/log/mcollective.log") do |file, pos, line|
+    puts "bob ate #{line}"
+end
 end
 </pre>
 
@@ -26,7 +25,8 @@ The Name?
 Typhon is a mythical beast:
 
 <pre>
-He appeared man-shaped down to the thighs, with two coiled vipers in place of legs. Attached to his hands in place of fingers were a hundred serpent heads, fifty per hand.
+He appeared man-shaped down to the thighs, with two coiled vipers in place of legs.
+Attached to his hands in place of fingers were a hundred serpent heads, fifty per hand.
 </pre>
 
 Each bit of Typhon logic goes in a head.
