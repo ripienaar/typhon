@@ -11,7 +11,6 @@ By putting the following in _bob`_`head.rb_:
 Typhon.grow(:name => "bob", :files => "/var/log/mcollective.log") do |file, pos, line|
     puts "bob ate #{line}"
 end
-end
 </pre>
 
 You will simply get a line of text for each line that appears in the log file.
