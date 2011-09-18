@@ -1,0 +1,92 @@
+#!/bin/sh
+#
+# typhon	Eventmachine based file tailer
+#
+# chkconfig:    345 24 76
+#
+# description:  A daemon that tails multiple logs and process them line by line with custom logic
+#
+### BEGIN INIT INFO
+# Provides:          typhon
+# Required-Start:    $remote_fs
+# Required-Stop:     $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+
+typhon="/usr/sbin/typhon"
+pidfile="/var/run/typhone.pid"
+
+if [ -d /var/lock/subsys ]; then
+    lockfile="/var/lock/subsys/typhon"
+else
+    lockfile="/var/lock/typhon"
+fi
+
+if ! [ -f $typhon ]; then
+    echo "typhon binary not found"
+    exit 0
+fi
+
+# Source function library.
+. /etc/init.d/functions
+
+start() {
+    echo -n "Starting typhon: "
+    daemon --pidfile ${pidfile} ${typhon} --pid=${pidfile} --config="/etc/typhon" --daemon
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch ${lockfile}
+    return $RETVAL
+}
+
+stop() {
+    echo -n "Shutting down typhon: "
+    killproc -p ${pidfile} ${typhon}
+    RETVAL=$?
+    echo
+    [ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
+    return $RETVAL
+}
+
+restart() {
+    stop
+    start
+}
+
+rh_status() {
+    status -p ${pidfile} ${typhon}
+    RETVAL=$?
+    return $RETVAL
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+# See how we were called.
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    condrestart)
+        rh_status_q || exit 0
+        restart
+        ;;
+    status)
+        rh_status
+        ;;
+    *)
+        echo "Usage: typhon {start|stop|restart|condrestart|status}"
+        RETVAL=2
+        ;;
+esac
+exit $RETVAL

@@ -61,4 +61,3 @@ if daemon
 else
     typhon.tail
 end
-
