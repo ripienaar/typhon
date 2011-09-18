@@ -3,20 +3,22 @@
 require 'typhon'
 require 'optparse'
 
-@headsdir = "/etc/typhon"
+configdir = "/etc/typhon"
 
 opt = OptionParser.new
 
-opt.on("--heads [DIR]", "Directory full of Typhon heads") do |v|
-    @headsdir = v
+opt.on("--config [DIR]", "Directory for configuration file and heads") do |v|
+    configdir = v
 end
 
 opt.parse!
 
-raise "The directory #{@headsdir} does not exist" unless File.directory?(@headsdir)
+raise "The directory #{configdir} does not exist" unless File.directory?(configdir)
 
-t = Typhon.new(@headsdir)
+t = Typhon.new(configdir)
 
-puts "Tailing #{Typhon.files.join ', '}"
+Typhon.files.each do |f|
+    Typhon::Log.info("Tailing log #{f}")
+end
 
 t.tail

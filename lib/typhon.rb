@@ -3,6 +3,8 @@ class Typhon
     require 'eventmachine'
     require 'eventmachine-tail'
     require 'typhon/heads'
+    require 'typhon/log'
+    require 'typhon/config'
 
     class << self
         def heads
@@ -23,8 +25,13 @@ class Typhon
 
     attr_reader :heads
 
-    def initialize(path="/etc/typhon/heads")
-        @heads = Heads.new(path)
+    def initialize(path="/etc/typhon")
+        @configdir = path
+
+        Config[:configdir] = path
+        Config.loadconfig
+
+        @heads = Heads.new
     end
 
     def tail

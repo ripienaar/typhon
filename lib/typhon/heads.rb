@@ -10,7 +10,14 @@ class Typhon
                     raise "Already have a head called #{name} for file #{file}" if @heads[file].include?(name)
 
                     @heads[file][name] = head
+
+                    Log.debug("Registered a new head: #{name}")
                 end
+            end
+
+            def clear!
+                Log.debug("Clearing previously loaded heads")
+                @heads = {}
             end
 
             def heads
@@ -22,8 +29,8 @@ class Typhon
             end
         end
 
-        def initialize(dir="/etc/typhon/heads")
-            @dir = dir
+        def initialize
+            @dir = File.join(Config.configdir, "heads")
             loadheads
         end
 
@@ -47,6 +54,7 @@ class Typhon
             @loaded ||= 0
 
             if (@loaded < triggerage) || @loaded == 0
+                Heads.clear!
                 headfiles.each do |head|
                     loadhead(head)
                 end
@@ -56,6 +64,7 @@ class Typhon
         end
 
         def loadhead(head)
+            Log.debug("Loading head #{head}")
             load head
         rescue Exception => e
             puts "Failed to load #{head}: #{e.class}: #{e}"

@@ -1,0 +1,3 @@
+---
+:logfile: /dev/stderr
+:loglevel: :debug

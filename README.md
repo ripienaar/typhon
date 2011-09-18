@@ -16,8 +16,20 @@ end
 You will simply get a line of text for each line that appears in the log file.
 
 You can define many heads as you like, and multiple heads per file.  Heads go into
-_/etc/typhon_ in files matching _*`_`head.rb_, you can just touch a file called
+_/etc/typhon/heads_ in files matching _*`_`head.rb_, you can just touch a file called
 _reload.txt_ in that directory to cause all the heads to be re-read from disk
+
+Configuration?
+--------------
+
+By default it logs to _/var/log/typhon.log_ at info level and will rotate 5 files
+you can change this in the config file _/etc/typhon/typhon.yaml_:
+
+    ---
+    :logfile: /tmp/typhone
+    :loglevel: :debug
+    :keeplogs: 1
+    :max_log_size: 20480
 
 The Name?
 ---------
