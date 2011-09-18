@@ -22,14 +22,11 @@ _reload.txt_ in that directory to cause all the heads to be re-read from disk
 Configuration?
 --------------
 
-By default it logs to _/var/log/typhon.log_ at info level and will rotate 5 files
-you can change this in the config file _/etc/typhon/typhon.yaml_:
+By default it logs to syslog at info level you can change this in the config file
+_/etc/typhon/typhon.yaml_:
 
     ---
-    :logfile: /tmp/typhone
     :loglevel: :debug
-    :keeplogs: 1
-    :max_log_size: 20480
 
 The Name?
 ---------

@@ -1,21 +1,33 @@
 class Typhon
     class Log
+        require 'syslog'
+
+        include Syslog::Constants
+
         @configured = false
+
+        @known_levels = [:debug, :info, :warn, :error, :fatal]
 
         class << self
             def log(msg, severity=:debug)
                 configure unless @configured
 
-                @logger.add(valid_levels[severity.to_sym]) { "#{from} #{msg}" }
+                if @known_levels.index(severity) >= @known_levels.index(@active_level)
+                    Syslog.send(valid_levels[severity.to_sym], "#{from} #{msg}")
+                end
             rescue Exception => e
                 STDERR.puts("Failed to log: #{e.class}: #{e}: original log message: #{severity}: #{msg}")
                 STDERR.puts(e.backtrace.join("\n\t"))
             end
 
             def configure
-                @logger = Logger.new(Config[:logfile], Config[:keeplogs], Config[:max_log_size])
-                @logger.formatter = Logger::Formatter.new
-                @logger.level = valid_levels[Config[:loglevel].to_sym]
+                Syslog.close if Syslog.opened?
+                Syslog.open(File.basename($0))
+
+                @active_level = Config[:loglevel]
+
+                raise "Unknown log level #{@active_level} specified" unless valid_levels.include?(@active_level)
+
                 @configured = true
             end
 
@@ -25,11 +37,11 @@ class Typhon
             end
 
             def valid_levels
-                {:info  => Logger::INFO,
-                 :warn  => Logger::WARN,
-                 :debug => Logger::DEBUG,
-                 :fatal => Logger::FATAL,
-                 :error => Logger::ERROR}
+                {:info  => :info,
+                 :warn  => :warning,
+                 :debug => :debug,
+                 :fatal => :crit,
+                 :error => :err}
             end
 
             def method_missing(level, *args, &block)

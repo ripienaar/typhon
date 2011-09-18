@@ -21,6 +21,19 @@ class Typhon
 
             Heads.register_head(options[:name], options[:files], blk)
         end
+
+        def daemonize
+            fork do
+                Process.setsid
+                exit if fork
+                Dir.chdir('/tmp')
+                STDIN.reopen('/dev/null')
+                STDOUT.reopen('/dev/null', 'a')
+                STDERR.reopen('/dev/null', 'a')
+
+                yield
+            end
+        end
     end
 
     attr_reader :heads

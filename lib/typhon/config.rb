@@ -2,10 +2,7 @@ class Typhon
     class Config
         include Enumerable
 
-        @settings = {:logfile => "/dev/stderr",
-                     :loglevel => :info,
-                     :keeplogs => 5,
-                     :max_log_size => 20480}
+        @settings = {:loglevel => :info}
 
         class << self
             attr_reader :settings

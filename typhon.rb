@@ -4,6 +4,8 @@ require 'typhon'
 require 'optparse'
 
 configdir = "/etc/typhon"
+daemon = false
+pidfile = nil
 
 opt = OptionParser.new
 
@@ -11,14 +13,52 @@ opt.on("--config [DIR]", "Directory for configuration file and heads") do |v|
     configdir = v
 end
 
+opt.on("--daemonize", "-d", "Daemonize the process") do |v|
+    daemon = true
+end
+
+opt.on("--pid [PIDFILE]", "-p", "Write a pidfile") do |v|
+    pidfile = v
+end
+
 opt.parse!
 
 raise "The directory #{configdir} does not exist" unless File.directory?(configdir)
 
-t = Typhon.new(configdir)
+def stop_and_exit(daemon, pidfile, signal)
+    Typhon::Log.info("Exiting after signal #{signal}")
+
+    if daemon && pidfile
+        File.unlink(pidfile)
+    end
+
+    exit
+end
+
+Signal.trap('INT') { stop_and_exit(daemon, pidfile, :int) }
+Signal.trap('TERM') { stop_and_exit(daemon, pidfile, :term) }
+
+typhon = Typhon.new(configdir)
 
 Typhon.files.each do |f|
     Typhon::Log.info("Tailing log #{f}")
 end
 
-t.tail
+if daemon
+    raise "Pidfile #{pidfile} exist" if pidfile && File.exist?(pidfile)
+
+    Typhon.daemonize do
+        if pidfile
+            begin
+                File.open(pidfile, 'w') {|f| f.write(Process.pid) }
+            rescue
+            end
+        end
+
+        Typhon::Log.info("Running in the background as pid #{Process.pid}")
+        typhon.tail
+    end
+else
+    typhon.tail
+end
+
