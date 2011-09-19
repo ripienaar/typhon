@@ -38,7 +38,11 @@ class Typhon
             return unless Heads.heads.include?(file)
 
             Heads.heads[file].each_pair do |name, head|
-                head.call(file, pos, text)
+                begin
+                    head.call(file, pos, text)
+                rescue Exception => e
+                    Log.error("Failed to handle line from #{file}##{pos} with head #{name}: #{e.class}: #{e}")
+                end
             end
         end
 

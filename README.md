@@ -19,6 +19,10 @@ You can define many heads as you like, and multiple heads per file.  Heads go in
 _/etc/typhon/heads_ in files matching _*`_`head.rb_, you can just touch a file called
 _reload.txt_ in that directory to cause all the heads to be re-read from disk
 
+It will check every 10 seconds if this _reload.txt_ has changed and initiate a reload
+of all the heads, any files that are new will be tailed and any files being tailed with
+no more heads attached will be closed.
+
 Configuration?
 --------------
 
