@@ -1,6 +1,0 @@
- * Reloading heads doesnt work too hot at
-   the moment as new files added once the daemon
-   is running does not get added to the tailer.
-
-   Similarly if its was tailing a file and the head
-   gets removed the tailer does not get removed

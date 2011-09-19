@@ -49,10 +49,10 @@ class Typhon
 
     def tail
         EM.run do
-            Typhon.files.each do |path|
-                EventMachine::file_tail(path) do |ft, line|
-                    @heads.feed(ft.path, ft.position, line)
-                end
+            @heads.loadheads
+
+            EM.add_periodic_timer(10) do
+                @heads.loadheads
             end
         end
     end

@@ -21,7 +21,7 @@ class Typhon
             end
 
             def heads
-                @heads || []
+                @heads || {}
             end
 
             def files
@@ -31,12 +31,10 @@ class Typhon
 
         def initialize
             @dir = File.join(Config.configdir, "heads")
-            loadheads
+            @tails = {}
         end
 
         def feed(file, pos, text)
-            loadheads
-
             return unless Heads.heads.include?(file)
 
             Heads.heads[file].each_pair do |name, head|
@@ -60,7 +58,33 @@ class Typhon
                 end
             end
 
+            starttails
+
             @loaded = Time.now.to_f
+        end
+
+        def starttails
+            # for all the files that have interested heads start tailers
+            Typhon.files.each do |file|
+                unless @tails.include?(file)
+                    Log.debug("Starting a new tailer for #{file}")
+                    @tails[file] = EventMachine::file_tail(file) do |ft, line|
+                        self.feed(ft.path, ft.position, line)
+                    end
+                end
+            end
+
+            # for all the tailers make sure there are files, else close the tailer
+            @tails.keys.each do |file|
+                unless Typhon.files.include?(file)
+                    Log.debug("Closing tailer for #{file} there are no heads attached")
+
+                    begin
+                        @tails[file].close
+                    rescue
+                    end
+                end
+            end
         end
 
         def loadhead(head)
