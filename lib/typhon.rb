@@ -71,6 +71,12 @@ class Typhon
             EM.add_periodic_timer(10) do
                 @heads.loadheads
             end
+
+            if Config[:stat_log_frequency] > 0
+                EM.add_periodic_timer(Config[:stat_log_frequency]) do
+                    @heads.log_stats
+                end
+            end
         end
     end
 end

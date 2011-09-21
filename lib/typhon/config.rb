@@ -2,7 +2,7 @@ class Typhon
     class Config
         include Enumerable
 
-        @settings = {:loglevel => :info, :stomp => false}
+        @settings = {:loglevel => :info, :stomp => false, :stat_log_frequency => 3600}
 
         class << self
             attr_reader :settings

@@ -31,6 +31,10 @@ _/etc/typhon/typhon.yaml_:
 
     ---
     :loglevel: :debug
+    :stat_log_frequency: 3600
+
+It will log some stats about uptime and lines processed, in this case that will happen
+every 3600 seconds
 
 Stomp Connection?
 -----------------

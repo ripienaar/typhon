@@ -36,6 +36,14 @@ class Typhon
         def initialize
             @dir = File.join(Config.configdir, "heads")
             @tails = {}
+            @linecount = 0
+            @starttime = Time.now
+        end
+
+        def log_stats
+            uptime = seconds_to_human((Time.now - @starttime).to_i)
+
+            Log.info("Up for #{uptime} seconds read #{@linecount} lines")
         end
 
         # Handles a line of text from a log file by finding the
@@ -46,6 +54,7 @@ class Typhon
             Heads.heads[file].each_pair do |name, head|
                 begin
                     head.call(file, pos, text)
+                    @linecount += 1
                 rescue Exception => e
                     Log.error("Failed to handle line from #{file}##{pos} with head #{name}: #{e.class}: #{e}")
                 end
@@ -122,5 +131,30 @@ class Typhon
         def triggerfile
             File.join([@dir, "reload.txt"])
         end
+
+        # borrowed from ohai, thanks Adam.
+        def seconds_to_human(seconds)
+            days = seconds.to_i / 86400
+            seconds -= 86400 * days
+
+            hours = seconds.to_i / 3600
+            seconds -= 3600 * hours
+
+            minutes = seconds.to_i / 60
+            seconds -= 60 * minutes
+
+            if days > 1
+                return sprintf("%d days %02d hours %02d minutes %02d seconds", days, hours, minutes, seconds)
+            elsif days == 1
+                return sprintf("%d day %02d hours %02d minutes %02d seconds", days, hours, minutes, seconds)
+            elsif hours > 0
+                return sprintf("%d hours %02d minutes %02d seconds", hours, minutes, seconds)
+            elsif minutes > 0
+                return sprintf("%d minutes %02d seconds", minutes, seconds)
+            else
+                return sprintf("%02d seconds", seconds)
+            end
+        end
+
     end
 end
