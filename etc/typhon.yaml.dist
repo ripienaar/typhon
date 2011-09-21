@@ -1,0 +1,7 @@
+---
+:loglevel: :debug
+:stomp:
+  :user: typhon
+  :pass: secret
+  :server: localhost
+  :port: 6163

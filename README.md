@@ -32,6 +32,34 @@ _/etc/typhon/typhon.yaml_:
     ---
     :loglevel: :debug
 
+Stomp Connection?
+-----------------
+
+My main use will be to process logs and emit events over middleware.  We include an
+instance of the EventMachine stomp connection that can be started.  To configure this
+add to the config file:
+
+    ---
+    :loglevel: :debug
+    :stomp:
+       :user: typhon
+       :pass: secret
+       :server: localhost
+       :port: 6163
+
+With this in place you can publish messages to the middleware:
+
+    class Typhon
+        grow(:name => "jack", :files => "/var/log/foo.log") do |file, pos, line|
+            stomp.publish("/topic/foo", line)
+        end
+    end
+
+Should the connection fail it will be retried every 2 seconds, messages that are
+published while the connection is down are queued and sent soon as the connection
+comes up.  The queue can hold 500 messages, soon as it's full it will overflow and
+messages will be discarded
+
 The Name?
 ---------
 Typhon is a mythical beast:

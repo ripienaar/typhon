@@ -33,7 +33,7 @@ rm -rf %{buildroot}
 %{__install} -m0755 typhon.init %{buildroot}/etc/init.d/typhon
 cp lib/typhon.rb %{buildroot}/%{ruby_sitelib}/typhon.rb
 cp -R lib/typhon %{buildroot}/%{ruby_sitelib}/
-cp etc/typhon.yaml %{buildroot}/etc/typhon
+cp etc/typhon.yaml.dist %{buildroot}/etc/typhon/typhon.yaml
 
 %clean
 rm -rf %{buildroot}

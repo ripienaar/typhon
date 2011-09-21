@@ -1,5 +1,9 @@
 class Typhon
     class Heads
+        # these methods are here to help the DSL have somewhere to
+        # store instances of the heads and some utilities to manage
+        # them.  This is effectively a global named scope that just
+        # holds blocks of codes
         class << self
             def register_head(name, files, head)
                 @heads ||= {}
@@ -34,6 +38,8 @@ class Typhon
             @tails = {}
         end
 
+        # Handles a line of text from a log file by finding the
+        # heads associated with that file and calling them all
         def feed(file, pos, text)
             return unless Heads.heads.include?(file)
 
@@ -46,6 +52,8 @@ class Typhon
             end
         end
 
+        # Loads/Reload all the heads from disk, a trigger file is used that
+        # the user can touch the trigger and it will initiate a complete reload
         def loadheads
             if File.exist?(triggerfile)
                 triggerage = File::Stat.new(triggerfile).mtime.to_f
@@ -67,6 +75,8 @@ class Typhon
             @loaded = Time.now.to_f
         end
 
+        # Start EM tailers for each known file.  If a file has become orphaned
+        # by all its heads being removed then close the tail
         def starttails
             # for all the files that have interested heads start tailers
             Typhon.files.each do |file|

@@ -1,10 +1,12 @@
 class Typhon
     require 'rubygems'
+    require 'yaml'
     require 'eventmachine'
     require 'eventmachine-tail'
     require 'typhon/heads'
     require 'typhon/log'
     require 'typhon/config'
+    require 'typhon/stompclient'
 
     class << self
         def heads
@@ -20,6 +22,14 @@ class Typhon
             raise "Heads need files" unless options[:files]
 
             Heads.register_head(options[:name], options[:files], blk)
+        end
+
+        def stomp=(stomp)
+            @stomp = stomp
+        end
+
+        def stomp
+            @stomp
         end
 
         def daemonize
@@ -45,11 +55,18 @@ class Typhon
         Config.loadconfig
 
         @heads = Heads.new
+        @stomp = nil
     end
 
     def tail
         EM.run do
             @heads.loadheads
+
+            if Config[:stomp]
+                Log.debug("Connecting to Stomp Server %s:%d" % [ Config[:stomp][:server], Config[:stomp][:port] ])
+                @stomp = EM.connect Config[:stomp][:server], Config[:stomp][:port], Typhon::StompClient, {:auto_reconnect => true, :timeout => 2}
+                Typhon.stomp = @stomp
+            end
 
             EM.add_periodic_timer(10) do
                 @heads.loadheads
