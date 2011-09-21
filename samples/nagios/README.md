@@ -28,4 +28,8 @@ And tell nagios to call your command after every check:
 Now install the _nagios\_perf\_head.rb_ and setup typhon with your
 Stomp server and you should start seeing events on the topic.
 
+The messages you will receive will be JSON and look roughly like this:
+
+    {"name":"alive","text":"PING OK - Packet loss = 0%, RTA = 0.30 ms","tags":{},"metrics":{"pl":"0","rta":"0.300000"},"subject":"devco.net","type":"status","origin":"monitor1.xx.net","severity":0,"eventtime":1316611343}
+
 Remember to rotate the log file that the above script creates

@@ -24,7 +24,7 @@ class Typhon
             alert_data["text"] = output
             alert_data["severity"] = exitcodes[exitcode].to_i
             alert_data["metrics"] = parsed_perf
-            alert_data["origin"] = "monitor1.pinetecltd.net"
+            alert_data["origin"] = "monitor1.xx.net"
             alert_data["type"] = "status"
             alert_data["tags"] = {}
 
