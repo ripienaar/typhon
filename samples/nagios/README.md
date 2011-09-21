@@ -17,8 +17,8 @@ First create a performance data handler for nagios:
 Now create the nagios command to call this script:
 
     define command{
-        command_name                    process-service-perfdata
-	command_line                    $USER1$/process-service-perfdata  "$LASTSERVICECHECK$" "$HOSTNAME$" "$SERVICEDESC$" "$SERVICEOUTPUT$" "$SERVICESTATE$" "$SERVICEPERFDATA$"
+        command_name   process-service-perfdata
+        command_line   $USER1$/process-service-perfdata  "$LASTSERVICECHECK$" "$HOSTNAME$" "$SERVICEDESC$" "$SERVICEOUTPUT$" "$SERVICESTATE$" "$SERVICEPERFDATA$"
     }
 
 And tell nagios to call your command after every check:
