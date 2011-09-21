@@ -6,7 +6,7 @@ require 'rake/clean'
 PROJ_NAME = "typhon"
 PROJ_FILES = ["build/doc", "#{PROJ_NAME}.rb", "#{PROJ_NAME}.spec", "#{PROJ_NAME}.init", "lib", "etc", "COPYING"]
 PROJ_DOC_TITLE = "Typhon - File tail daemon"
-PROJ_VERSION = "0.0.1"
+PROJ_VERSION = "0.0.3"
 PROJ_RELEASE = "1"
 PROJ_RPM_NAMES = [PROJ_NAME]
 
