@@ -15,7 +15,7 @@ class Typhon
 
                     @heads[file][name] = head
 
-                    Log.debug("Registered a new head: #{name}")
+                    Log.debug("Registered a new head: #{name} for file #{file}")
                 end
             end
 
@@ -43,7 +43,7 @@ class Typhon
         def log_stats
             uptime = seconds_to_human((Time.now - @starttime).to_i)
 
-            Log.info("Up for #{uptime} seconds read #{@linecount} lines")
+            Log.info("Up for #{uptime} read #{@linecount} lines")
         end
 
         # Handles a line of text from a log file by finding the

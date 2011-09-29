@@ -30,7 +30,7 @@ rm -rf %{buildroot}
 %{__install} -d -m0755  %{buildroot}/etc/typhon/heads
 %{__install} -d -m0755  %{buildroot}/usr/sbin
 %{__install} -d -m0755  %{buildroot}/etc/init.d
-%{__install} -m0755 typhon.rb %{buildroot}/usr/sbin/typhon
+%{__install} -m0755 bin/typhon %{buildroot}/usr/sbin/typhon
 %{__install} -m0755 typhon.init %{buildroot}/etc/init.d/typhon
 cp lib/typhon.rb %{buildroot}/%{ruby_sitelib}/typhon.rb
 cp -R lib/typhon %{buildroot}/%{ruby_sitelib}/
