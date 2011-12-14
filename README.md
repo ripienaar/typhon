@@ -7,13 +7,19 @@ It uses eventmachine-tail to do the hard work, it really is just some sugar to m
 things a bit more pleasant.
 
 By putting the following in _bob`_`head.rb_:
-<pre>
-Typhon.grow(:name => "bob", :files => "/var/log/mcollective.log") do |file, pos, line|
-    puts "bob ate #{line}"
-end
-</pre>
+
+    Typhon.grow(:name => "bob", :files => "/var/log/mcollective.log") do |file, pos, line|
+       puts "bob ate #{line}"
+    end
 
 You will simply get a line of text for each line that appears in the log file.
+
+Additionally you can use Typhon to produce messages onto Stomp middleware direct from
+a head:
+
+    Typhon.grow(:name => "bob", :files => "/var/log/mcollective.log") do |file, pos, line|
+       stomp.publish("/queue/logs", line, {"typhon_source" => file})
+    end
 
 You can define many heads as you like, and multiple heads per file.  Heads go into
 _/etc/typhon/heads_ in files matching _*`_`head.rb_, you can just touch a file called
