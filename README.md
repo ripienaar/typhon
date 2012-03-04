@@ -103,7 +103,7 @@ using Typhon and MCollective:
           ratelimit(:ssh).record(abuser)
 
           if ratelimit(:ssh).rate(abuser) == 10
-	    system("mco iptables block #{abuser} -s")
+            system("mco iptables block #{abuser} -s")
           end
         end
       end
