@@ -13,7 +13,10 @@ class Typhon
 
           raise "Already have a head called #{name} for file #{file}" if @heads[file].include?(name)
 
-          @heads[file][name] = head
+          headklass = Head.new
+          headklass.define_singleton_method(:call, head)
+
+          @heads[file][name] = headklass
 
           Log.debug("Registered a new head: #{name} for file #{file}")
         end

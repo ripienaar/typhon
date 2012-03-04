@@ -70,6 +70,70 @@ published while the connection is down are queued and sent soon as the connectio
 comes up.  The queue can hold 500 messages, soon as it's full it will overflow and
 messages will be discarded
 
+Message Rate?
+-------------
+
+You can record the rate at which specific messages enter your system, lets say you want
+to create a simple IDS for ssh abuse for your entire network, you can easily achieve this
+using Typhon and MCollective:
+
+  class Typhon
+    grow(:name => "ssh abuse", :file => "/var/log/all_hosts_ssh.log") do |file, pos, |line|
+      # keep track of abuse over 5 minute windows
+      abuser = false
+
+      # whitelist
+      whitelist = ["1.2.3.4"]
+
+      if line =~ /Failed password for (.+) from (.+) port/
+        abuser = $2
+      elsif line =~ /(Invalid|Illegal) user (.+) from (.+)/
+        abuser = $3
+      end
+
+      if abuser
+        break if whitelist.include?(abuser)
+
+        ratelimit(:ssh, 300)
+
+        ratelimit(:ssh).record(abuser)
+
+        if ratelimit(:ssh).rate(abuser) > 10
+           system("mco rpc iptables block ip=#{abuser}")
+        end
+      end
+    end
+  end
+
+Here we arrange that all auth related logs from all hosts end up in /var/log/all_hosts_ssh.log
+we then parse the lines for typical SSH abuse like lines and take out the attacker IP.
+
+Using the ratelimit(:ssh, 300) we create a new rate tracker called :ssh that has a windows of 300
+seconds, if you do not specify the 300 it would default to 60.
+
+We record the event in the :ssh ratelimiter and then check that've had this event more than 10
+times in the 300 seconds, if so we firewall it everywhere.
+
+The ratelimiter can take any string, it stores a hash of the string so size of the string should not
+affect the memory usage of typhon over time.
+
+An alternative way to write the limiter bit would be:
+
+   if abusee
+      limiter = ratelimit(:ssh, 300)
+
+      limiter.record(abuser)
+
+      if limiter.rate(abuser) > 10
+         # block
+      end
+   end
+
+Rate limiters are unique per head, one head can not reference another heads limiter even if they
+use the same name.
+
+If you reload your heads from disk the rate limiter will reset to zero.
+
 The Name?
 ---------
 Typhon is a mythical beast:

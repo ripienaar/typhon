@@ -7,6 +7,8 @@ class Typhon
   require 'typhon/log'
   require 'typhon/config'
   require 'typhon/stompclient'
+  require 'typhon/ratelimit'
+  require 'typhon/head'
 
   class << self
     def heads
