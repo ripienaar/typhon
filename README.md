@@ -77,33 +77,33 @@ You can record the rate at which specific messages enter your system, lets say y
 to create a simple IDS for ssh abuse for your entire network, you can easily achieve this
 using Typhon and MCollective:
 
-    class Typhon
-      grow(:name => "ssh abuse", :file => "/var/log/all_hosts_ssh.log") do |file, pos, |line|
-        # keep track of abuse over 5 minute windows
-        abuser = false
+      class Typhon
+        grow(:name => "ssh abuse", :file => "/var/log/all_hosts_ssh.log") do |file, pos, |line|
+          # keep track of abuse over 5 minute windows
+          abuser = false
 
-        # whitelist
-        whitelist = ["1.2.3.4"]
+          # whitelist
+          whitelist = ["1.2.3.4"]
 
-        if line =~ /Failed password for (.+) from (.+) port/
-          abuser = $2
-        elsif line =~ /(Invalid|Illegal) user (.+) from (.+)/
-          abuser = $3
-        end
+          if line =~ /Failed password for (.+) from (.+) port/
+            abuser = $2
+          elsif line =~ /(Invalid|Illegal) user (.+) from (.+)/
+            abuser = $3
+          end
 
-        if abuser
-          break if whitelist.include?(abuser)
+          if abuser
+            break if whitelist.include?(abuser)
 
-          ratelimit(:ssh, 300)
+            ratelimit(:ssh, 300)
 
-          ratelimit(:ssh).record(abuser)
+            ratelimit(:ssh).record(abuser)
 
-          if ratelimit(:ssh).rate(abuser) > 10
-             system("mco rpc iptables block ip=#{abuser}")
+            if ratelimit(:ssh).rate(abuser) > 10
+               system("mco rpc iptables block ip=#{abuser}")
+            end
           end
         end
       end
-    end
 
 Here we arrange that all auth related logs from all hosts end up in /var/log/all_hosts_ssh.log
 we then parse the lines for typical SSH abuse like lines and take out the attacker IP.
@@ -119,15 +119,15 @@ affect the memory usage of typhon over time.
 
 An alternative way to write the limiter bit would be:
 
-     if abusee
-        limiter = ratelimit(:ssh, 300)
+       if abusee
+          limiter = ratelimit(:ssh, 300)
 
-        limiter.record(abuser)
+          limiter.record(abuser)
 
-        if limiter.rate(abuser) > 10
-           # block
-        end
-     end
+          if limiter.rate(abuser) > 10
+             # block
+          end
+       end
 
 Rate limiters are unique per head, one head can not reference another heads limiter even if they
 use the same name.
