@@ -117,8 +117,13 @@ class Typhon
       Log.debug("Loading head #{head}")
       load head
     rescue Exception => e
-      puts "Failed to load #{head}: #{e.class}: #{e}"
-      p e.backtrace
+      Log.error "Failed to load #{head}: #{e.class}: #{e}"
+      Log.error e.backtrace
+
+      if STDOUT.tty?
+        puts "Failed to load #{head}: #{e.class}: #{e}"
+        p e.backtrace
+      end
     end
 
     def headfiles

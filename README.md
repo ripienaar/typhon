@@ -77,33 +77,37 @@ You can record the rate at which specific messages enter your system, lets say y
 to create a simple IDS for ssh abuse for your entire network, you can easily achieve this
 using Typhon and MCollective:
 
-      class Typhon
-        grow(:name => "ssh abuse", :file => "/var/log/all_hosts_ssh.log") do |file, pos, |line|
-          # keep track of abuse over 5 minute windows
-          abuser = false
+    class Typhon
+      grow(:name => "ssh_abuse", :files => "/var/log/secure") do |file, pos, line|
+        # whitelist
+        whitelist = [
+                      "UNKNOWN",         # wtf ssh, stupid shit.
+                      "127.0.0.1"
+                    ]
 
-          # whitelist
-          whitelist = ["1.2.3.4"]
+        abuser = false
 
-          if line =~ /Failed password for (.+) from (.+) port/
-            abuser = $2
-          elsif line =~ /(Invalid|Illegal) user (.+) from (.+)/
-            abuser = $3
-          end
+        if line =~ /Failed password for (.+) from (.+) port/
+          abuser = $2
+        elsif line =~ /(Invalid|Illegal) user (.+) from (.+)/
+          abuser = $3
+        elsif line =~ /sshd.+Did not receive identification string from (.+)/
+          abuser = $1
+        end
 
-          if abuser
-            break if whitelist.include?(abuser)
+        if abuser
+          break if whitelist.include?(abuser)
 
-            ratelimit(:ssh, 300)
+          ratelimit(:ssh, 300)
 
-            ratelimit(:ssh).record(abuser)
+          ratelimit(:ssh).record(abuser)
 
-            if ratelimit(:ssh).rate(abuser) > 10
-               system("mco rpc iptables block ip=#{abuser}")
-            end
+          if ratelimit(:ssh).rate(abuser) == 10
+	    system("mco iptables block #{abuser} -s")
           end
         end
       end
+    end
 
 Here we arrange that all auth related logs from all hosts end up in /var/log/all_hosts_ssh.log
 we then parse the lines for typical SSH abuse like lines and take out the attacker IP.
