@@ -14,6 +14,10 @@ class Typhon
       @limiters[name] ||= RateLimit.new(time)
     end
 
+    def nats
+      Typhon.nats
+    end
+
     def stomp
       Typhon.stomp
     end

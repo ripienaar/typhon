@@ -7,6 +7,7 @@ class Typhon
   require 'typhon/log'
   require 'typhon/config'
   require 'typhon/stompclient'
+  require 'typhon/natsclient'
   require 'typhon/ratelimit'
   require 'typhon/head'
 
@@ -24,6 +25,14 @@ class Typhon
       raise "Heads need files" unless options[:files]
 
       Heads.register_head(options[:name], options[:files], blk)
+    end
+
+    def nats=(nats)
+      @nats = nats
+    end
+
+    def nats
+      @nats
     end
 
     def stomp=(stomp)
@@ -58,17 +67,26 @@ class Typhon
 
     @heads = Heads.new
     @stomp = nil
+    @nats = nil
+  end
+
+  def start_nats
+    @nats = Typhon::NatsClient.new(Config[:nats])
+    Typhon.nats = @nats
+  end
+
+  def start_stomp
+    Log.debug("Connecting to Stomp Server %s:%d" % [ Config[:stomp][:server], Config[:stomp][:port] ])
+    @stomp = EM.connect Config[:stomp][:server], Config[:stomp][:port], Typhon::StompClient, {:auto_reconnect => true, :timeout => 2}
+    Typhon.stomp = @stomp
   end
 
   def tail
     EM.run do
       @heads.loadheads
 
-      if Config[:stomp]
-        Log.debug("Connecting to Stomp Server %s:%d" % [ Config[:stomp][:server], Config[:stomp][:port] ])
-        @stomp = EM.connect Config[:stomp][:server], Config[:stomp][:port], Typhon::StompClient, {:auto_reconnect => true, :timeout => 2}
-        Typhon.stomp = @stomp
-      end
+      start_stomp if Config[:stomp]
+      start_nats if Config[:nats]
 
       EM.add_periodic_timer(10) do
         @heads.loadheads

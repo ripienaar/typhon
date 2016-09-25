@@ -40,6 +40,8 @@ spec = Gem::Specification.new do |s|
   s.has_rdoc = true
   s.executables = "typhon"
   s.default_executable = "typhon"
+  s.add_runtime_dependency 'nats', '~> 0.8'
+  s.add_runtime_dependency 'eventmachine-tail', '~> 0.6'
 end
 
 Rake::GemPackageTask.new(spec) do |build|
